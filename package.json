@@ -1,0 +1,35 @@
+{
+  "name": "wind-core-dao",
+  "version": "1.0.0",
+  "description": "数据存取接口定义模块",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node ./test/start.js",
+    "test": "ava --verbose",
+    "build": "babel src -d build"
+  },
+  "author": {
+    "name": "刘晗",
+    "email": "liuhann@gmail.com"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "ava": "^3.8.2"
+  },
+  "dependencies": {
+    "lodash-id": "^0.14.0",
+    "lowdb": "^1.0.0",
+    "make-dir": "^3.1.0"
+  },
+  "ava": {
+    "files": [
+      "test/*.test.js"
+    ]
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  }
+}
