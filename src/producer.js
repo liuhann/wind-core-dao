@@ -35,8 +35,8 @@ class DatabaseProducer {
         app.context.getCollection = app.getCollection = this.getCollection.bind(this);
     }
 
-    async setDatabaseImpl(Database, options) {
-        this.Database = Database;
+    async setDatabaseImpl(DataBase, options) {
+        this.DataBase = DataBase;
         Object.assign(this.dbOptions, options);
     }
 
