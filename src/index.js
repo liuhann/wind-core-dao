@@ -23,7 +23,7 @@ module.exports = {
 
     // 模块路由注册，对外提供API可在此写api相关地址
     async ready(app) {
-        app.dataBaseProducer.ready(app);
+        await app.dataBaseProducer.ready(app);
 
         new RestfyDB().initRoutes(app.router);
     },
