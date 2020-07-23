@@ -1,6 +1,6 @@
 {
   "name": "wind-core-dao",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "数据存取接口定义模块",
   "main": "src/index.js",
   "scripts": {
