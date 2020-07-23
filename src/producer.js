@@ -1,5 +1,4 @@
 const mkdir = require('make-dir'),
-    LowDB = require('./lowdb'),
     path = require('path');
 
 /**
@@ -7,8 +6,7 @@ const mkdir = require('make-dir'),
  */
 class DatabaseProducer {
     constructor() {
-        // 默认使用LowDB
-        this.DataBase = LowDB;
+        this.DataBase = null;
         this.dbOptions = {
             store: './.data'
         };
@@ -19,9 +17,13 @@ class DatabaseProducer {
      * 挂载相关默认方法到koa app
      * @param {Object} app
      */
-    ready(app) {
+    async ready(app) {
+        if (this.dbOptions.store) {
+            // ensure dir
+            await mkdir(this.dbOptions.store);
+        }
         // 设置到默认数据库
-        app.context.db = app.db = this.getDb();
+        app.context.db = app.db = await this.getDb();
 
         // 实现获取db实例方法
         app.context.getDb = app.getDb = this.getDb.bind(this);
@@ -36,15 +38,13 @@ class DatabaseProducer {
     async setDatabaseImpl(Database, options) {
         this.Database = Database;
         Object.assign(this.dbOptions, options);
-        // ensure dir
-        await mkdir(this.dbOptions.store);
     }
 
     getDbs() {
         return Object.keys(this.instances);
     }
 
-    getDb(name = 'db') {
+    async getDb(name = 'db') {
         const { DataBase: DataBaseImpl } = this;
 
         if (name.match(/^[a-z][a-z0-9]*/)) {
