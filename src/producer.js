@@ -45,11 +45,14 @@ class DatabaseProducer {
     }
 
     async getDb(name = 'db') {
-        const { DataBase: DataBaseImpl } = this;
+        const { DataBase } = this;
 
         if (name.match(/^[a-z][a-z0-9]*/)) {
             if (this.instances[name] == null) {
-                this.instances[name] = new DataBaseImpl(path.resolve(this.dbOptions.store, name), this.dbOptions);
+                this.instances[name] = new DataBase(path.resolve(this.dbOptions.store, name), this.dbOptions);
+                if (this.instances[name].connect) {
+                    await this.instances[name].connect()
+                }
             }
             return this.instances[name];
         } else {
