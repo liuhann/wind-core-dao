@@ -114,6 +114,13 @@ class Collection {
     }) {}
 
     /**
+    * 字段distinct
+    * @param {String} field 对应字段
+    * @param {Object} query 条件，同find方法对应条件
+    */
+    async distinct (field, query) {}
+
+    /**
    * 清空数据库
    * @return {Promise<void>}
    */
