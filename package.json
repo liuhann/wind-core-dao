@@ -17,6 +17,7 @@
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.6",
     "@babel/preset-env": "^7.9.6",
+    "@gw/eslint-config-common": "^1.0.0",
     "ava": "^3.8.2",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.5.0",
@@ -31,9 +32,6 @@
     "files": [
       "test/*.test.js"
     ]
-  },
-  "standard": {
-    "parser": "babel-eslint"
   },
   "publishConfig": {
     "registry": "http://registry.npmjs.org/"

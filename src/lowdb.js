@@ -1,34 +1,35 @@
-const low = require('lowdb')
-const FileSync = require('lowdb/adapters/FileSync')
-const DataBase = require('./database')
-const lodashId = require('lodash-id')
-const LowCollection = require('./low_collection')
+const low = require('lowdb'),
+    FileSync = require('lowdb/adapters/FileSync'),
+    DataBase = require('./database'),
+    lodashId = require('lodash-id'),
+    LowCollection = require('./low_collection');
 
 class LowDB extends DataBase {
-  constructor (dbFilePath) {
-    super()
-    this.adapter = new FileSync(dbFilePath)
-    this.db = low(this.adapter)
-    this.db._.mixin(lodashId)
-    this.collections = {}
-  }
-
-  /**
-     * @override
-     */
-  getCollections () {
-    return Object.keys(this.db.getState())
-  }
-
-  /**
-     * @override
-     */
-  getCollection (name) {
-    if (!this.collections[name]) {
-      this.collections[name] = new LowCollection(this.db, name)
+    constructor(dbFilePath) {
+        super();
+        this.adapter = new FileSync(dbFilePath);
+        this.db = low(this.adapter);
+        this.db._.mixin(lodashId);
+        this.db._.id = '_id';
+        this.collections = {};
     }
-    return this.collections[name]
-  }
+
+    /**
+     * @override
+     */
+    getCollections() {
+        return Object.keys(this.db.getState());
+    }
+
+    /**
+     * @override
+     */
+    getCollection(name) {
+        if (!this.collections[name]) {
+            this.collections[name] = new LowCollection(this.db, name);
+        }
+        return this.collections[name];
+    }
 }
 
-module.exports = LowDB
+module.exports = LowDB;

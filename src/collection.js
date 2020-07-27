@@ -2,16 +2,16 @@
  * 文档性数据集合接口
  */
 class Collection {
-  /**
+    /**
    * 插入文档
    * 若插入的数据主键已经存在，则会抛 DuplicateKeyException 异常，提示主键重复，不保存当前数据。
    * @abstract
    * @param object
    * @return inserted 插入后的对象（含id）
    */
-  async insert (object) {}
+    async insert(object) {}
 
-  /**
+    /**
      * 更新文档内容
      * @param {Object} query 同find接口查询条件
      * @param {Object} update 更新内容
@@ -19,9 +19,9 @@ class Collection {
      * @param {Object} [options.multi=false] 批量更新
      * @param {Object} [options.upsert=true] 更新插入
      */
-  async update (query, update, options) {}
+    async update(query, update, options) {}
 
-  /**
+    /**
      * 更新已存在的文档部分内容
      * 等同于
      * update({ _id: id }, {
@@ -31,9 +31,9 @@ class Collection {
      * @param id 文档标识
      * @param patched 文档要更新的字段集合
      */
-  async patch (id, patched) {}
+    async patch(id, patched) {}
 
-  /**
+    /**
      * 删除文档, 删除条件可以为对象（删除满足条件的文档）、字符串(删除指定id的文档)、数组(按多个对象或字符串删除)
      * @abstract
      * @example
@@ -42,23 +42,23 @@ class Collection {
      * coll.remove([id1, id2, id3])
      * @param [Array|Object|String] query 查询标识
      */
-  async remove (query) {}
+    async remove(query) {}
 
-  /**
+    /**
    * 根据id获取一个文档
    * @abstract
    * @param id
    */
-  async findOne (id) {}
+    async findOne(id) {}
 
-  /**
+    /**
    * 判断是否有指定查询条件的文档
    * @param query
    * @return {Boolean}
    */
-  async exist (query) {}
+    async exist(query) {}
 
-  /**
+    /**
      * 查询满足条件的文档列表
      * @abstract
      * @example
@@ -77,34 +77,34 @@ class Collection {
      *  limit: 10
      * }
      */
-  async find (query, {
-    sort,
-    projection,
-    skip,
-    limit
-  }) {}
+    async find(query, {
+        sort,
+        projection,
+        skip,
+        limit
+    }) {}
 
-  /**
+    /**
      * 按条件查询文档个数
      * @example
      * const count = await coll.count({}); // 3
      * @param {Object} query 查询条件
      */
-  async count (query) {}
+    async count(query) {}
 
-  /**
+    /**
      * 清空数据库
      * @abstract
      * @return {Number} 删除的记录个数
      */
-  async clean () {}
+    async clean() {}
 
-  /**
+    /**
     * 字段distinct
     * @param {String} field 对应字段
     * @param {Object} query 条件，同find方法对应条件
     */
-  async distinct (field, query) {}
+    async distinct(field, query) {}
 }
 
-module.exports = Collection
+module.exports = Collection;

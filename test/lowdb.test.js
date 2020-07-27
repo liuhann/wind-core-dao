@@ -1,233 +1,190 @@
 const test = require('ava'),
-    Producer = require('../src/producer'),
-    LowDB = require('../src/lowdb');
+    DB = require('../src/lowdb');
 
-test('init db and collection', async t => {
-    const producer = new Producer();
-
-    await producer.setDatabaseImpl(LowDB);
-    const db = producer.getDb(),
+test.beforeEach(async t => {
+    const db = new DB('./test/db'),
         coll = db.getCollection('test');
+
+    await coll.clean();
+    await coll.insert({
+        _id: 'id1',
+        planet: 'Mars',
+        system: 'solar',
+        inhabited: false,
+        satellites: ['Phobos', 'Deimos']
+    });
+    await coll.insert({
+        _id: 'id2',
+        planet: 'Earth',
+        system: 'solar',
+        inhabited: true,
+        humans: {
+            genders: 2,
+            eyes: true
+        }
+    });
+    await coll.insert({
+        _id: 'id3',
+        planet: 'Jupiter',
+        system: 'solar',
+        inhabited: false
+    });
+    await coll.insert({
+        _id: 'id4',
+        planet: 'Omicron Persei 8',
+        system: 'futurama',
+        inhabited: true,
+        humans: { genders: 7 }
+    });
+    await coll.insert({
+        _id: 'id5',
+        completeData: {
+            planets: [{
+                name: 'Earth',
+                number: 3
+            }, {
+                name: 'Mars',
+                number: 2
+            }, {
+                name: 'Pluton',
+                number: 9
+            }]
+        }
+    });
+
+    t.context = {
+        coll
+    };
+});
+test.serial('init db and collection', async t => {
+    const { coll } = t.context;
 
     t.true(coll !== null);
 });
 
-test('collection crud', async t => {
-    const producer = new Producer();
+test.serial('Insert and Find', async t => {
+    const db = new DB('./test/db'),
+        coll = db.getCollection('test'),
 
-    await producer.setDatabaseImpl(LowDB);
-    const db = producer.getDb(),
-        testColl = db.getCollection('test');
-
-    testColl.clean();
-
-    // insert
-    const inserted = await testColl.insert({
-        hello: 1,
-        name: 'Your name'
-    });
-
-    t.true(inserted.id !== null);
-
-    // find by id
-    let one = await testColl.findOne(inserted.id);
-
-    t.true(one !== null);
-
-    t.is(one.hello, 1);
-
-    one = await testColl.findOne({
-        hello: 1
-    });
-
-    t.true(one !== null);
-
-    t.is(one.hello, 1);
-
-    t.true(await testColl.exist({
-        hello: 1
-    }));
-
-    t.false(await testColl.exist({
-        hello: 2
-    }));
-
-    // full update
-    await testColl.update(inserted.id, {
-        hello: 2,
-        updated: 'this is updated adding'
-    });
-
-    t.false(await testColl.exist({
-        hello: 1
-    }));
-
-    t.true(await testColl.exist({
-        hello: 2
-    }));
-
-    // assign
-    await testColl.patch(inserted.id, {
-        patch: 'ok'
-    });
-
-    let found = await testColl.findOne(inserted.id);
-
-    t.assert(found.patch, 'ok');
-
-    // insert another
-    await testColl.insert({
-        hello: 2,
-        name: 'Your name'
-    });
-
-    // query
-    found = await testColl.find({
-        hello: 2
-    });
-
-    // 2 doc with hello = 2
-    t.true(found.list.length === 2);
-
-    // remove 2
-    await testColl.remove(found.list[0].id);
-    await testColl.remove(found.list[1].id);
-
-    const foundAgain = await testColl.find({});
-
-    t.true(foundAgain.total === 0);
-
-    await testColl.insert({
-        q: 'a',
-        name: 'Your name'
-    });
-    await testColl.insert({
-        q: 'a',
-        name: 'Your namewle'
-    });
-
-    found = await testColl.find({ q: 'a' });
-
-    t.is(2, found.total);
-
-    await testColl.remove({ q: 'a' });
-
-    found = await testColl.find({ q: 'a' });
-
-    t.is(0, found.total);
-});
-
-test('multi delete with id', async t => {
-    const producer = new Producer();
-
-    await producer.setDatabaseImpl(LowDB);
-    const db = producer.getDb(),
-        testColl = db.getCollection('test');
-
-    testColl.clean();
-    await testColl.insert({
-        id: '21D4332',
-        hello: 1,
-        name: 'Your name'
-    });
-    await testColl.insert({
-        id: '21D4331',
-        hello: 1,
-        name: 'Your name'
-    });
-
-    t.is(2, (await testColl.find({})).total);
-
-    await testColl.remove(['21D4332', '21D4331']);
-
-    t.is(0, (await testColl.find({})).total);
-});
-
-test('multilple delete', async t => {
-    const producer = new Producer();
-
-    await producer.setDatabaseImpl(LowDB);
-    const db = producer.getDb(),
-        testColl = db.getCollection('test');
-
-    testColl.clean();
-
-    // insert
-    const inserted1 = await testColl.insert({
-            hello: 1,
-            name: 'Your name'
-        }),
-
-        // insert
-        inserted2 = await testColl.insert({
-            hello: 2,
-            name: 'Your name'
-        }),
-
-        // insert
-        inserted3 = await testColl.insert({
-            hello: 3,
-            name: 'Your name'
-        }),
-
-        // insert
-        inserted4 = await testColl.insert({
-            hello: 4,
-            name: 'Your name'
+        inserted = await coll.insert({
+            hello: 'Database',
+            field: 1
         });
 
-    t.is(4, (await testColl.find({})).total);
+    t.is('Database', inserted.hello);
 
-    await testColl.remove([inserted1.id, inserted2.id]);
+    const existed = await coll.exist({
+        field: 1
+    });
 
-    t.is(2, (await testColl.find({})).total);
-
-    await testColl.remove([inserted3.id, inserted4.id]);
-
-    t.is(0, (await testColl.find({})).total);
+    t.is(true, existed);
 });
 
-test('find with projection', async t => {
-    const producer = new Producer();
+test.serial('Querying', async t => {
+    const { coll } = t.context,
 
-    await producer.setDatabaseImpl(LowDB);
-    const db = producer.getDb(),
-        testColl = db.getCollection('test');
+        // 基础条件查询、计数
+        solar = await coll.find({ system: 'solar' });
 
-    testColl.clean();
+    t.is(3, solar.length);
+    t.is(3, await coll.count({ system: 'solar' }));
 
-    // insert
-    await testColl.insert({
-        hello: 1,
-        name: 'Tom',
-        title: 'Doctor',
-        el: 'long long xiw'
-    });
+    // 正则匹配 包含 /ar/
+    // t.is(2, (await coll.find({ planet: /ar/ })).length);
 
-    // insert
-    await testColl.insert({
-        hello: 2,
-        name: 'Peter',
-        title: 'Master',
-        el: 'long long xiw'
-    });
-    // 只包含name字段
-    const found = await testColl.find({}, { projection: { name: true } });
+    // 多条件查询 Finding all inhabited planets in the solar system
+    t.is(1, (await coll.find({
+        system: 'solar',
+        inhabited: true
+    })).length);
 
-    t.is(2, found.total);
+    // 对象类型字段的递归查询
+    // t.is(1, (await coll.find({ 'humans.genders': 2 })).length);
 
-    t.is('Tom', found.list[0].name);
-    t.true(found.list[0].title == null);
-    t.true(found.list[1].el == null);
+    // 支持的数组查询方式 按数组字段查询
+    // t.is(1, (await coll.find({ 'completeData.planets.name': 'Mars' })).length);
 
-    // 排除name字段
-    const found2 = await testColl.find({}, { projection: { name: false } });
+    // t.is(0, (await coll.find({ 'completeData.planets.name': 'Jupiter' })).length);
 
-    t.is(2, found2.total);
+    // 支持的数组查询方式 按下标查询
+    // t.is(1, (await coll.find({ 'completeData.planets.0.name': 'Earth' })).length);
 
-    t.true(found2.list[0].name == null);
+    // 操作符 $in. $nin
+    // t.is(2, (await coll.find({ planet: { $in: ['Earth', 'Jupiter'] } })).length);
 
-    t.is('Doctor', found2.list[0].title);
-    t.is('long long xiw', found2.list[1].el);
+    // 按id的多个查找
+    // t.is(3, (await coll.find({ _id: { $in: ['id1', 'id2', 'id3'] } })).length);
+
+    // $gt
+    // t.is(1, (await coll.find({ 'humans.genders': { $gt: 5 } })).length);
+
     t.pass();
+});
+
+test.serial('Projection Sort and Limit', async t => {
+    const { coll } = t.context;
+
+    await coll.remove('id5');
+
+    // 查询投影
+    const projectResult = await coll.find({ planet: 'Mars' }, {
+        projection: {
+            planet: 1,
+            system: 1
+        }
+    });
+
+    t.is(1, projectResult.length);
+
+    t.is('solar', projectResult[0].system);
+    t.is('Mars', projectResult[0].planet);
+    t.true(projectResult[0].satellites == null);
+    t.pass();
+});
+
+test.serial('Update & Patch', async t => {
+    const { coll } = t.context;
+
+    // 替换一个文档
+    await coll.update({ planet: 'Jupiter' }, { planet: 'Pluton' });
+
+    const found = await coll.findOne('id3');
+
+    // t.is('Pluton', found.planet);
+    t.true(found.system == null);
+
+    // 更新字段
+    t.is(2, (await coll.find({ system: 'solar' })).length);
+
+    await coll.patch({ system: 'solar' }, { system: 'solar system' });
+    t.is(1, (await coll.find({ system: 'solar' })).length);
+    t.is(1, (await coll.find({ system: 'solar system' })).length);
+
+    // 删除字段
+    await coll.update({ planet: 'Mars' }, { $unset: { planet: true } });
+    t.true((await coll.findOne({ planet: 'Mars' })) == null);
+    const unset = await coll.findOne('id1');
+
+    t.true(unset.planet == null);
+});
+
+test.serial('Remove', async t => {
+    const { coll } = t.context;
+
+    t.true((await coll.findOne('id1')) != null);
+    // 单个删除
+    await coll.remove('id1');
+
+    t.true((await coll.findOne('id1')) == null);
+
+    // 多个删除
+    t.true((await coll.findOne('id2')) != null);
+    await coll.remove(['id2', 'id3']);
+    t.true((await coll.findOne('id2')) == null);
+    t.true((await coll.findOne('id3')) == null);
+
+    // 按条件删除
+    t.true((await coll.findOne('id4')) != null);
+    await coll.remove({ system: 'futurama' });
+    t.true((await coll.findOne('id4')) == null);
 });

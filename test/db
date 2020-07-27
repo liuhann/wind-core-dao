@@ -1,0 +1,23 @@
+{
+  "test": [
+    {
+      "_id": "id5",
+      "completeData": {
+        "planets": [
+          {
+            "name": "Earth",
+            "number": 3
+          },
+          {
+            "name": "Mars",
+            "number": 2
+          },
+          {
+            "name": "Pluton",
+            "number": 9
+          }
+        ]
+      }
+    }
+  ]
+}
